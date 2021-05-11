@@ -1,0 +1,30 @@
+version: "3.9"
+networks:
+  monitoring:
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ${PWD}/backup.py:/tmp/backup.py
+      - ${PWD}/backup:/tmp/backup
+    networks:
+      - monitoring
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ${PWD}/prometheus.yml:/etc/prometheus/prometheus.yml
+
+    networks:
+      - monitoring
+    ports:
+      - "9090:9090"
+    links:
+      - pushgateway
+  pushgateway:
+    image: prom/pushgateway
+    networks:
+      - monitoring
+    ports:
+      - "9091:9091"
