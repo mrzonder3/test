@@ -8,10 +8,12 @@ cmd = "pg_basebackup -D /tmp/backup/{0} -U postgres".format(backupFolderName)
 
 if os.system(cmd) == 0:
     metric = 'Backup has been created successfully'
+    metricCode = 1
 else:
     metric = 'Backup failed'
+    metricCode = 0
 
 registry = CollectorRegistry()
-g = Gauge('metrics', metric, registry=registry)
-g.set_to_current_time()
+g = Gauge('backup_status', metric, registry=registry)
+g.set(metricCode)
 push_to_gateway('pushgateway:9091', job='pg_basebackup', registry=registry)
